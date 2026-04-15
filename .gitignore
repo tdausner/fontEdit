@@ -1,0 +1,7 @@
+.ai
+.idea
+node_modules
+yarn.lock
+
+# Project exclude paths
+/app/

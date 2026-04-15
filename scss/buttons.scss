@@ -1,0 +1,173 @@
+%border {
+  border: 1px solid #9c9c9c;
+  border-radius: 5px;
+}
+
+%dimensions {
+  font-size: 1em;
+  height: 2em;
+  width: 1.9em;
+  margin: 0;
+  padding: 0;
+}
+
+input.fileUpload {
+  display: none;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.buttonGroup {
+  @extend %border;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: fit-content;
+  padding: 4px;
+
+  &.rowButtons fieldset {
+    display: flex;
+    gap: 3px;
+    border: none;
+    margin-left: -3px;
+    padding: 0;
+
+    input {
+      margin-bottom: 2px;
+    }
+  }
+
+  button {
+    @extend %border;
+    @extend %dimensions;
+
+    background-color: #fff;
+    cursor: pointer;
+
+    &::after {
+      font-family: "Font Awesome 7 Free";
+    }
+
+    &.fileUpload {
+      &::file-selector-button {
+        display: none;
+      }
+
+      &::after {
+        @extend %dimensions;
+
+        color: #888888;
+        content: '\f019';
+        cursor: pointer;
+
+      }
+    }
+
+    &.addRow::after {
+      content: "\f055";
+      color: #888888;
+    }
+
+    &.removeRow::after {
+      content: "\f056";
+      color: #888888;
+    }
+
+    &.active {
+      -webkit-box-shadow: inset 0 0 5px #c1c1c1;
+      -moz-box-shadow: inset 0 0 5px #c1c1c1;
+      box-shadow: inset 0 0 5px #c1c1c1;
+    }
+
+    &.inactive {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    &.area {
+      color: #57c2fa;
+
+      &::after {
+        content: "\f0b2";
+      }
+
+      &.active {
+        -webkit-box-shadow: inset 0 0 5px #c1c1c1;
+        -moz-box-shadow: inset 0 0 5px #c1c1c1;
+        box-shadow: inset 0 0 5px #c1c1c1;
+        color: #00aaff;
+        background-color: #bae2fa;
+      }
+    }
+
+    &.copy::after {
+      content: "\f0c5";
+    }
+
+    &.fill {
+      color: #888888;
+
+      &::after {
+        content: "\f576";
+      }
+
+      &.active {
+        color: #515151;
+        background-color: #d4d4d4;
+      }
+    }
+
+    &.make::after {
+      content: "\f2f9";
+    }
+
+    &.minus::after {
+      content: "\f068";
+      color: #666666;
+    }
+
+    &.new::after {
+      content: "\f2f5";
+      color: #666666;
+    }
+
+    &.plus::after {
+      content: "\2b";
+      color: #666666;
+    }
+
+    &.wipe {
+      color: #f2722e;
+
+      &::after {
+        content: "\f12d";
+      }
+
+      &.active {
+        color: #d94100;
+        background-color: #ffe4d2;
+      }
+    }
+  }
+
+  span.cols, span.maxRows, input.name {
+    @extend %border;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    height: 1.85em;
+    width: 2em;
+  }
+
+  input.name {
+    font-size: 1em;
+    text-align: center;
+  }
+}
