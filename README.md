@@ -31,7 +31,7 @@ $ npm start server
 
 ## Font format example
 
-```php
+```c
 typedef struct {
     char symbol;
     uint8_t width;
