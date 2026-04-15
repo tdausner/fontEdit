@@ -10,10 +10,6 @@
  */
 
 #ifndef DEFAULTFONTAVR_H
-#define DEFAULTFONTAVR_H
-
-#include <avr/pgmspace.h>
-
 #include <avr/pgmspace.h>
 
 typedef struct {

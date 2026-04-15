@@ -3,7 +3,6 @@ import Area from './area';
 import FillAndWipeHandler from './fillAndWipeHandler';
 import PlusHandler from './plusHandler';
 import MinusHandler from './minusHandler';
-import Bitmap from './bitmap';
 import Canvas from './canvas';
 
 export default class ActionButtons {

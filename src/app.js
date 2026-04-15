@@ -38,8 +38,6 @@ export class App {
 
 #include <avr/pgmspace.h>
 
-#include <avr/pgmspace.h>
-
 typedef struct {
     char symbol;
     uint8_t width;
