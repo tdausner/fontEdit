@@ -24,7 +24,7 @@ Object.assign(window, {
         maxDisplayPages: 4,
         maxRows: 24,
         areaCopy: false,
-        defaultFont: '/src/defaultFontAvr.hx'
+        defaultFont: '/src/defaultFontAvr.h'
     },
 });
 
