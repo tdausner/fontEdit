@@ -15,32 +15,24 @@ export default class Bitmap {
                 this.getInputBitmaps(text);
                 this.init();
                 new Canvas().init();
+                document.querySelectorAll('button.fileDownload, button.copy').forEach(button => button.classList.add('inactive'));
             } catch (err) {
                 console.error('Error reading file:', err);
             }
         });
 
-        fetch(params.defaultFont)
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                } else {
-                    return `
+        this.getInputBitmaps(`
 static const uint8_t bitmap_0[] PROGMEM = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00, 0x00,0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00, 0x00,0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0xfc, 0xfe, 0xff, 0x0f, 0x07, 0x07, 0x07, 0x07, 0x0f, 0x3e, 0x3c, 0x38, 
+    0x80, 0xc0, 0xc0, 0x60, 0x60, 0xff, 0xff, 0xff, 0xff, 0x30, 0x30, 0x18, 0x18, 0x1c, 0x0c, 0x04, 0x00, 0x00, 
+    0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 };
 const FontData bitmaps[] PROGMEM = {
-    { '0', sizeof(bitmap_0) / 2, bitmap_0 },
-};    
-`
-                }
-            })
-            .then(text => {
-                this.getInputBitmaps(text);
-                this.init();
-                new Canvas().init();
-            });
+    { '0', sizeof(bitmap_0) / 3, bitmap_0 },
+};
+`);
+        this.init();
+        new Canvas().init();
     }
 
     readFileAsText(file) {
@@ -53,31 +45,41 @@ const FontData bitmaps[] PROGMEM = {
     }
 
     getInputBitmaps(text) {
+        const matches = /^(\/\*[\s\S]*?\*\/\s)/.exec(text);
+        if (matches !== null && matches.length > 0) {
+            fileHeader = matches[0];
+        }
+
         let names = [];
         let match;
         let regex = /const FontData bitmaps\[] PROGMEM = {\n([\s\S]*?)\n};/g;
         if ((match = regex.exec(text)) !== null) {
-            const values = match[1].split(',').map(val => val.trim().replace(/\s*{ '(.)'.*/, '$1'));
-            for (let i = 0; i < values.length; i += 3) {
-                if (values[i] !== '') {
-                    names.push(values[i]);
+            const values = match[1].split(/(\s*{\s*'|'[^/]+\/\s*|,\s*bitmap_\d+\s*},\s*)/);
+            for (let i = 2; i < values.length; i += 6) {
+                let name = values[i];
+                if (name === "\\") {
+                    name = "'";
+                } else if (name === "\\\\") {
+                    name = "\\";
                 }
-                if (i === 0 && values[1] !== undefined) {
-                    params.maxFontPages = parseInt(values[1].replace(/.*\/ (\d+).*/, '$1'));
+                if (name !== '') {
+                    names.push(name);
+                }
+                if (i === 2 && values[4] !== undefined) {
+                    params.maxFontPages = parseInt(values[4]);
                 }
             }
         }
 
         this.inputBitmaps = [];
         let idx = 0;
-        regex = /static const uint8_t bitmap_.*?\[] PROGMEM = {\n([\s\S]*?)\n};/g;
+        regex = /static const uint8_t bitmap_.*?\[] PROGMEM = {.*\n([\s\S]*?)\n};/g;
         while ((match = regex.exec(text)) !== null) {
             const hexString = match[1].replace(/,\s*?$/, '');
             this[`bitmap_${idx}`] = hexString.split(',').map(val => val.trim().toString(16).padStart(2, '0'));
             this.inputBitmaps.push([names[idx], this[`bitmap_${idx}`].length / params.maxFontPages, this[`bitmap_${idx}`]]);
             idx++;
         }
-
         params.maxRows = params.maxFontPages * 8;
         params.maxDisplayPages = params.maxRows / 8;
 

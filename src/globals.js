@@ -1,5 +1,6 @@
 Object.assign(window, {
-    fileName: 'defaultFontAvr.h',
+    fileName: 'fonEditIcon.h',
+    fileHeader: '',
     fileLoaded: false,
     bitmaps: [],
     bitmapInstance: null,
@@ -24,7 +25,6 @@ Object.assign(window, {
         maxDisplayPages: 4,
         maxRows: 24,
         areaCopy: false,
-        defaultFont: '/src/defaultFontAvr.h'
     },
 });
 

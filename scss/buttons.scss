@@ -15,12 +15,6 @@ input.fileUpload {
   display: none;
 }
 
-.buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
 .buttonGroup {
   @extend %border;
   background-color: #fff;
@@ -51,6 +45,16 @@ input.fileUpload {
 
     &::after {
       font-family: "Font Awesome 7 Free";
+    }
+
+    &.fileDownload {
+      &::after {
+        @extend %dimensions;
+
+        color: #888888;
+        content: '\f093';
+        cursor: pointer;
+      }
     }
 
     &.fileUpload {
@@ -107,6 +111,7 @@ input.fileUpload {
 
     &.copy::after {
       content: "\f0c5";
+      color: #888888;
     }
 
     &.fill {
@@ -123,7 +128,8 @@ input.fileUpload {
     }
 
     &.make::after {
-      content: "\f2f9";
+      content: "\f121";
+      color: #888888;
     }
 
     &.minus::after {

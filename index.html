@@ -1,6 +1,9 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>fontEdit</title>
+        <meta charset="utf-8" />
+        <link rel="icon" href="fontEdit.ico">
         <link rel="stylesheet" href="app/style.css" />
     </head>
     <body>
@@ -10,12 +13,17 @@
                     <button class="fileUpload" onclick="document.getElementById('fileUpload').click()"
                         title="load bitmaps from file"></button>
                     <input type="file" id="fileUpload" class="fileUpload" />
+                    <button class="make" title="make bitmap output"></button>
+                    <button class="fileDownload inactive" title="save bitmaps to file"></button>
+                    <button class="copy inactive" title="copy to clipboard"></button>
                 </div>
 
-                <select class="displaySize">
-                    <option value="4">32 x 128 max display size</option>
-                    <option value="8">64 x 128 max display size</option>
-                </select>
+                <label class="displaySizeLabel">
+                    <select class="displaySize">
+                        <option value="4">32 x 128 max display size</option>
+                        <option value="8">64 x 128 max display size</option>
+                    </select>
+                </label>
 
                 <div class="buttonGroup">
                     <input class="areaCopy" type="checkbox" id="areaCopy" name="areaCopy" />
@@ -38,11 +46,6 @@
 
             <div class="canvasAndResult">
                 <div class="canvas"></div>
-
-                <div class="buttonGroup">
-                    <button class="make" title="make bitmap output"></button>
-                    <button class="copy" title="copy to clipboard"></button>
-                </div>
                 <pre></pre>
             </div>
 

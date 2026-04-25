@@ -20,10 +20,8 @@ export default class Canvas {
     newBitmap(bitmap, bitmapIndex, actionButtons) {
         const bitmapDiv = document.createElement('div');
         bitmapDiv.classList.add('bitmap');
-        area.instance = actionButtons.init(bitmapDiv, bitmapIndex, bitmap.width);
-
         const table = document.createElement('table');
-        bitmapDiv.append(table);
+        area.instance = actionButtons.initBitmapDiv(bitmapDiv, table, bitmapIndex, bitmap.width);
 
         const tableBody = table.createTBody();
         bitmap.cells.forEach((row, rowIdx) => {

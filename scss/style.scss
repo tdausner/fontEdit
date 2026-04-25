@@ -26,9 +26,19 @@ main {
   width: calc(100% - 38px);
   z-index: 10;
 
-  .displaySize {
-    font-size: 1em;
-    padding: 0 10px;
+  label.displaySizeLabel {
+    @extend %border;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: fit-content;
+    padding: 4px;
+
+    .displaySize {
+      font-size: 1em;
+      padding: 2px 10px 3px;
+    }
   }
 
   .areaCopy {
@@ -48,15 +58,16 @@ main {
   margin-top: 62px;
   display: flex;
   flex-direction: column;
-  gap: 10px;}
+  gap: 10px;
+}
 
 .canvas {
   @extend %border;
   background-color: #ffff;
   display: flex;
   flex-wrap: wrap;
-  //grid-template-columns: repeat(auto-fit, minmax(305px, 1fr));
   gap: 10px;
+  justify-content: center;
   padding: 10px;
 }
 
@@ -65,9 +76,25 @@ main {
   background-color: #eee;
   display: flex;
   flex-direction: column;
-  flex: 1;
   gap: 10px;
   padding: 8px;
+
+  .topDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .bottomDiv {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    .buttonGroup {
+      flex-direction: column;
+      height: fit-content;
+    }
+  }
 }
 
 table {

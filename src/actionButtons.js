@@ -8,7 +8,7 @@ import Canvas from './canvas';
 export default class ActionButtons {
 
     // buttons are drawn in order of list
-    buttonClassNames =[['area', 'fill', 'wipe'], ['plus', 'minus'], ['new']];
+    buttonClassNames = [['area', 'fill', 'wipe'], ['plus', 'minus'], ['new']];
     buttonTitles = [
         [
             'select an area',
@@ -20,36 +20,39 @@ export default class ActionButtons {
             'remove a column from the right'
         ],
         [
-            'new bitmap',
+            'new bitmap'
         ]
     ];
 
     constructor() {
     }
 
-    init(bitmapDiv, bitmapIndex, width) {
+    initBitmapDiv(bitmapDiv, table, bitmapIndex, width) {
 
-        const buttonDiv = document.createElement('div');
-        buttonDiv.classList.add('buttons');
-        bitmapDiv.append(buttonDiv);
+        const topDiv = document.createElement('div');
+        topDiv.classList.add('topDiv');
+        bitmapDiv.append(topDiv);
+        const bottomDiv = document.createElement('div');
+        bottomDiv.classList.add('bottomDiv');
+        bitmapDiv.append(bottomDiv);
+
+        const buttonGroupDiv = document.createElement('div');
+        buttonGroupDiv.classList.add('buttonGroup');
+        const nameInput = document.createElement('input');
+        nameInput.classList.add('name');
+        nameInput.type = 'text';
+        nameInput.value = bitmaps[bitmapIndex].name;
+        nameInput.addEventListener('change', ev => {
+            bitmaps[bitmapIndex].name = ev.target.value;
+        });
+        buttonGroupDiv.append(nameInput);
+        topDiv.append(buttonGroupDiv);
 
         let area = null;
 
         this.buttonClassNames.forEach((buttonGroup, buttonGroupIndex) => {
             const buttonGroupDiv = document.createElement('div');
             buttonGroupDiv.classList.add('buttonGroup');
-            buttonDiv.append(buttonGroupDiv);
-
-            if (buttonGroupIndex === 0) {
-                const nameInput = document.createElement('input');
-                nameInput.classList.add('name');
-                nameInput.type = 'text';
-                nameInput.value = bitmaps[bitmapIndex].name;
-                nameInput.addEventListener('change', ev => {
-                    bitmaps[bitmapIndex].name = ev.target.value;
-                })
-                buttonGroupDiv.append(nameInput);
-            }
 
             buttonGroup.forEach((buttonClass, buttonIndex) => {
                 const button = document.createElement('button');
@@ -72,7 +75,15 @@ export default class ActionButtons {
                     buttonGroupDiv.append(span);
                 }
             });
+
+            if (buttonGroupIndex === 0) {
+                bottomDiv.append(buttonGroupDiv);
+            } else {
+                topDiv.append(buttonGroupDiv);
+            }
         });
+
+        bottomDiv.append(table);
 
         return area;
     }
@@ -117,15 +128,19 @@ export default class ActionButtons {
         const newBitmapDiv = new Canvas().newBitmap(newBitmap, actionButton.bitmapIndex + 1, this);
         bitmapDiv.after(newBitmapDiv);
         // renumber
-        const bitmapButtonGroups = document.querySelectorAll('.bitmap .buttons');
+        const bitmapButtonGroups = document.querySelectorAll('.bitmap .buttonGroup');
+        const groupsPerBitmap = bitmapButtonGroups.length / bitmaps.length;
+
         for (let bitmapIndex = actionButton.bitmapIndex + 1; bitmapIndex < bitmaps.length; bitmapIndex++) {
             const bitmap = bitmaps[bitmapIndex];
             // renumber cells
             bitmap.cells.forEach(cells => cells.forEach(cell => cell.bitmapIndex = bitmapIndex));
             // renumber actionButtons
-            bitmapButtonGroups[bitmapIndex].querySelectorAll('button').forEach(button => {
-                button.bitmapIndex = bitmapIndex;
-            });
+            for (let i = 0; i < groupsPerBitmap; i++) {
+                bitmapButtonGroups[bitmapIndex * groupsPerBitmap + i].querySelectorAll('button').forEach(button => {
+                    button.bitmapIndex = bitmapIndex;
+                });
+            }
         }
     }
 

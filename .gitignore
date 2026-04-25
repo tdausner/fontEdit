@@ -3,5 +3,4 @@
 node_modules
 yarn.lock
 
-# Project exclude paths
-/app/
+/app/index.*.hot-update.*

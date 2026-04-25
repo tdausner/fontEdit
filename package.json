@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.2.0",
+    "native-file-system-adapter": "^3.0.1",
     "tslib": "2"
   }
 }
