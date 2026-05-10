@@ -1,5 +1,5 @@
 import Canvas from './canvas';
-import showActive from './globals';
+import {clearOutput, showActive} from './globals';
 
 export default class Bitmap {
     inputBitmaps = [];
@@ -11,11 +11,14 @@ export default class Bitmap {
             try {
                 const file = ev.target.files[0];
                 fileName = file.name;
+                document.querySelector('.fontNameInput').value = fileName;
                 text = await this.readFileAsText(file);
                 this.getInputBitmaps(text);
                 this.init();
                 new Canvas().init();
-                document.querySelectorAll('button.fileDownload, button.copy').forEach(button => button.classList.add('inactive'));
+                clearOutput();
+                document.querySelectorAll('.fontName')
+                        .forEach(fn => fn.innerText = fileName.substring(0, fileName.lastIndexOf('.')));
             } catch (err) {
                 console.error('Error reading file:', err);
             }
@@ -27,8 +30,8 @@ static const uint8_t bitmap_0[] PROGMEM = {
     0x80, 0xc0, 0xc0, 0x60, 0x60, 0xff, 0xff, 0xff, 0xff, 0x30, 0x30, 0x18, 0x18, 0x1c, 0x0c, 0x04, 0x00, 0x00, 
     0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 };
-const FontData bitmaps[] PROGMEM = {
-    { '0', sizeof(bitmap_0) / 3, bitmap_0 },
+const FontData bitmaps_fontEditIcon[] PROGMEM = {
+    { 'f', sizeof(bitmap_0) / 3, bitmap_0 },
 };
 `);
         this.init();
@@ -52,7 +55,7 @@ const FontData bitmaps[] PROGMEM = {
 
         let names = [];
         let match;
-        let regex = /const FontData bitmaps\[] PROGMEM = {\n([\s\S]*?)\n};/g;
+        let regex = /const FontData bitmaps_[A-Za-z0-9_]+\[] PROGMEM = {\n([\s\S]*?)\n};/g;
         if ((match = regex.exec(text)) !== null) {
             const values = match[1].split(/(\s*{\s*'|'[^/]+\/\s*|,\s*bitmap_\d+\s*},\s*)/);
             for (let i = 2; i < values.length; i += 6) {
@@ -76,9 +79,8 @@ const FontData bitmaps[] PROGMEM = {
         regex = /static const uint8_t bitmap_.*?\[] PROGMEM = {.*\n([\s\S]*?)\n};/g;
         while ((match = regex.exec(text)) !== null) {
             const hexString = match[1].replace(/,\s*?$/, '');
-            this[`bitmap_${idx}`] = hexString.split(',').map(val => val.trim().toString(16).padStart(2, '0'));
-            this.inputBitmaps.push([names[idx], this[`bitmap_${idx}`].length / params.maxFontPages, this[`bitmap_${idx}`]]);
-            idx++;
+            const hexData = hexString.split(',').map(val => val.trim().toString(16).padStart(2, '0'));
+            this.inputBitmaps.push([names[idx++], hexData.length / params.maxFontPages, hexData]);
         }
         params.maxRows = params.maxFontPages * 8;
         params.maxDisplayPages = params.maxRows / 8;
@@ -89,12 +91,12 @@ const FontData bitmaps[] PROGMEM = {
     init() {
         bitmaps = [];
 
-        for (let bitmapIndex = 0; bitmapIndex < this.inputBitmaps.length; bitmapIndex++) {
-            bitmaps.push(this.new(...this.inputBitmaps[bitmapIndex]));
+        for (let index = 0; index < this.inputBitmaps.length; index++) {
+            bitmaps.push(this.newBitmap(...this.inputBitmaps[index]));
         }
     }
 
-    new(name, width, inputBitmapItem) {
+    newBitmap(name, width, inputBitmapItem) {
         let cells = [];
         let row = 0;
         for (let page = 0; page < params.maxFontPages; page++) {
@@ -112,7 +114,23 @@ const FontData bitmaps[] PROGMEM = {
         return {
             name: name,
             width: width,
-            cells: cells
+            cells: cells,
+            buttons: [],
+            areaActive: false,
+            fillActive: false,
+            wipeActive: false,
+            area: {
+                instance: null,
+                bitmap: null,
+                pos: {
+                    x0: -1,
+                    y0: -1,
+                    x1: -1,
+                    y1: -1,
+                    left: -1,
+                    top: -1,
+                }
+            }
         };
     }
 }

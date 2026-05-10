@@ -8,41 +8,43 @@
     </head>
     <body>
         <main>
-            <div class="params">
-                <div class="buttonGroup">
-                    <button class="fileUpload" onclick="document.getElementById('fileUpload').click()"
-                        title="load bitmaps from file"></button>
-                    <input type="file" id="fileUpload" class="fileUpload" />
-                    <button class="make" title="make bitmap output"></button>
-                    <button class="fileDownload inactive" title="save bitmaps to file"></button>
-                    <button class="copy inactive" title="copy to clipboard"></button>
-                </div>
+            <section>
+                <a href="https://github.com/tdausner/fontEdit" title="sources @github.com" target="_blank">
+                    <img src="fontEdit.png" alt="fontEdit" />
+                </a>
+                <div class="params">
+                    <div class="buttonGroup">
+                        <button class="fileUpload" onclick="document.getElementById('fileUpload').click()"
+                            title="load bitmaps from file"></button>
+                        <input type="file" id="fileUpload" class="fileUpload" />
+                        <button class="make" title="make bitmap output"></button>
+                        <button class="fileDownload disabled" title="save bitmaps to file"></button>
+                        <button class="copy disabled" title="copy to clipboard"></button>
+                    </div>
 
-                <label class="displaySizeLabel">
-                    <select class="displaySize">
-                        <option value="4">32 x 128 max display size</option>
-                        <option value="8">64 x 128 max display size</option>
-                    </select>
+                    <label class="displaySizeLabel">
+                        <select class="displaySize">
+                            <option value="4">32 x 128 max display size</option>
+                            <option value="8">64 x 128 max display size</option>
+                        </select>
+                    </label>
+
+                    <div class="buttonGroup rowButtons">
+                        <button class="addRow" title="add a row"></button>
+                        <button class="removeRow" title="remove a row"></button>
+                        <fieldset>
+                            <input class="where" type="radio" id="top" name="where" value="top" title="at bitmap top" checked />
+                            <label class="where top" for="top" title="at bitmap top"></label>
+                            <input class="where" type="radio" id="bottom" name="where" value="bottom" title="at bitmap bottom"/>
+                            <label class="where bottom" for="bottom" title="at bitmap bottom"></label>
+                        </fieldset>
+                        <span class="maxRows"></span>
+                    </div>
+                </div>
+                <label>
+                    <input class="fontNameInput" type="text" placeholder="font name" value="fontEditIcon.h"/>
                 </label>
-
-                <div class="buttonGroup">
-                    <input class="areaCopy" type="checkbox" id="areaCopy" name="areaCopy" />
-                    <label class="areaCopy" for="areaCopy">area copy</label>
-                </div>
-
-                <div class="buttonGroup rowButtons">
-                    <button class="addRow" title="add a row"></button>
-                    <button class="removeRow" title="remove a row"></button>
-                    <fieldset>
-                        <input class="where" type="radio" id="top" name="where" value="top" checked />
-                        <label class="where" for="top">at top</label>
-                        <input class="where" type="radio" id="bottom" name="where" value="bottom" />
-                        <label class="where" for="bottom">at bottom</label>
-                    </fieldset>
-                    <span class="maxRows"></span>
-                </div>
-
-            </div>
+            </section>
 
             <div class="canvasAndResult">
                 <div class="canvas"></div>

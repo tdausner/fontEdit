@@ -1,5 +1,6 @@
 import ActionButtons from './actionButtons';
 import CellClickHandler from './cellClickHandler';
+import CellHoverHandler from './cellHoverHandler';
 
 export default class Canvas {
 
@@ -8,20 +9,19 @@ export default class Canvas {
 
     init() {
         const canvas = document.querySelector('.canvas');
-        const actionButtons = new ActionButtons();
+        const actionButtonInstance = new ActionButtons();
         const bitmapDivs = document.querySelectorAll('.bitmap');
         bitmapDivs.forEach(bitmapDiv => bitmapDiv.remove());
+        bitmaps.forEach(bitmap => canvas.append(this.newBitmapDiv(bitmap, actionButtonInstance)));
+        canvas.addEventListener('mouseover', () => activeBitmap = null);
 
-        bitmaps.forEach((bitmap, bitmapIndex) => {
-            canvas.append(this.newBitmap(bitmap, bitmapIndex, actionButtons));
-        });
     }
 
-    newBitmap(bitmap, bitmapIndex, actionButtons) {
+    newBitmapDiv(bitmap, actionButtonInstance) {
         const bitmapDiv = document.createElement('div');
         bitmapDiv.classList.add('bitmap');
         const table = document.createElement('table');
-        area.instance = actionButtons.initBitmapDiv(bitmapDiv, table, bitmapIndex, bitmap.width);
+        actionButtonInstance.initBitmapDiv(bitmapDiv, table, bitmap, bitmap.width);
 
         const tableBody = table.createTBody();
         bitmap.cells.forEach((row, rowIdx) => {
@@ -29,7 +29,7 @@ export default class Canvas {
             row.forEach((on, colIdx) => {
                 const bodyCell = bodyRow.insertCell(-1);
                 bodyCell.classList.add('value');
-                bodyCell.bitmapIndex = bitmapIndex;
+                bodyCell.bitmap = bitmap;
                 bodyCell.row = rowIdx;
                 bodyCell.col = colIdx;
                 bodyCell.state = false;
@@ -37,10 +37,13 @@ export default class Canvas {
                     bodyCell.classList.add('on');
                     bodyCell.state = true;
                 }
-                bodyCell.addEventListener('click', ev => new CellClickHandler(ev));
+                bodyCell.addEventListener('mousedown', ev => new CellClickHandler(ev));
+                bodyCell.addEventListener('mouseover', ev => new CellHoverHandler(ev));
                 bitmap.cells[rowIdx][colIdx] = bodyCell;
             })
-        })
+        });
+        bitmapDiv.addEventListener('mouseover', () => activeBitmap = null);
+
         return bitmapDiv;
     }
 }

@@ -1,13 +1,14 @@
-import showActive from './globals';
-import Bitmap from './bitmap.js';
-import Params from './params.js';
-import RowButtons from './rowButtons';
 import {showSaveFilePicker} from 'native-file-system-adapter';
+import {showActive} from './globals';
+import Bitmap from './bitmap';
+import RowButtons from './rowButtons';
+import FillAndWipeButtonHandler from './fillAndWipeButtonHandler';
+import AreaButtonHandler from './areaButtonHandler';
+import AreaCopyButtonHandler from './areaCopyButtonHandler';
 
 export class App {
 
     constructor() {
-        new Params();
         new RowButtons();
         bitmapInstance = new Bitmap();
 
@@ -18,6 +19,39 @@ export class App {
             showActive(ev.target);
             navigator.clipboard.writeText(document.querySelector('pre').innerText).then(() => {});
         });
+        document.querySelector('input.fontNameInput').addEventListener('change', ev => {
+            fileName = ev.target.value;
+        });
+        document.addEventListener('keydown', this.keyHandler);
+        document.addEventListener('keyup', this.keyHandler);
+    }
+
+    keyHandler(ev) {
+        if (activeBitmap !== null) {
+            keyPressed = ev.type === 'keydown' ? ev.key : -1;
+
+            if (keyPressed === 'Control' || keyPressed === 'w' || keyPressed === 'W') {
+                if (activeBitmap.areaActive) {
+                    new AreaButtonHandler(activeBitmap.buttons['area']);
+                }
+                new FillAndWipeButtonHandler(activeBitmap.buttons['wipe'], false);
+            } else if (keyPressed === 'Shift' || keyPressed === 'f' || keyPressed === 'F') {
+                if (activeBitmap.areaActive) {
+                    new AreaButtonHandler(activeBitmap.buttons['area']);
+                }
+                new FillAndWipeButtonHandler(activeBitmap.buttons['fill'], true);
+            } else if (keyPressed === 'a' || keyPressed === 'A') {
+                if (activeBitmap.fillActive) {
+                    new FillAndWipeButtonHandler(activeBitmap.buttons['fill'], true);
+                }
+                if (activeBitmap.wipeActive) {
+                    new FillAndWipeButtonHandler(activeBitmap.buttons['wipe'], false);
+                }
+                new AreaButtonHandler(activeBitmap.buttons['area']);
+            } else if (activeBitmap.areaActive && (keyPressed === 'c' || keyPressed === 'C')) {
+                new AreaCopyButtonHandler(activeBitmap.buttons['areaCopy']);
+            }
+        }
     }
 
     makeOutput(button) {
@@ -26,12 +60,13 @@ export class App {
         const pre = document.querySelector('pre');
         const capFileName =
             fileName.replace(/([a-zA-Z])(?=[A-Z])/g, '$1_')
-                    .replace('.', '_')
+                    .replace(/[^A-Za-z0-9_]/g, '_')
                     .toUpperCase();
         const fontName = fileName.substring(0, fileName.lastIndexOf('.'));
         if (fileHeader !== '') {
             pre.innerText = fileHeader
-                .replace(/Font Name: .*?/, `Font Name: ${fontName}`)
+                .replace(/ \* .*\.h/, ` * ${fileName}`)
+                .replace(/Font Name: .*/, `Font Name: ${fontName}`)
                 .replace(/Font Height: \d+ pixels/, `Font Height: ${params.maxRows} pixels`);
         } else {
             pre.innerText = `/*
@@ -59,11 +94,13 @@ typedef struct {
 #define FONT_PAGES ${params.maxFontPages}
 
 `;
+        const uniqId = parseInt(Date.now() / 1000).toString(16);
+
         bitmaps.forEach((bitmap, bitmapIndex) => {
             const width = bitmap.width;
             const cells = bitmap.cells;
 
-            pre.innerText += `static const uint8_t bitmap_${bitmapIndex}[] PROGMEM = {  // '${bitmap.name}' width: ${width}
+            pre.innerText += `static const uint8_t bitmap_${uniqId}_${bitmapIndex}[] PROGMEM = {  // '${bitmap.name}' width: ${width}
 `;
             for (let page = 0; page < params.maxFontPages; page++) {
                 let hexText = '';
@@ -89,10 +126,11 @@ typedef struct {
 `;
         });
 
-        pre.innerText += `const FontData bitmaps[] PROGMEM = {
+        const bitmapName = 'bitmaps_' + fontName.replace(/[^A-Za-z0-9_]/g, '_');
+        pre.innerText += `static const FontData ${bitmapName}[] PROGMEM = {
 `;
         bitmaps.forEach((bitmap, bitmapIndex) => {
-            pre.innerText += `    { '${bitmap.name}', sizeof(bitmap_${bitmapIndex}) / ${params.maxFontPages}, bitmap_${bitmapIndex} },
+            pre.innerText += `    { '${bitmap.name}', sizeof(bitmap_${uniqId}_${bitmapIndex}) / ${params.maxFontPages}, bitmap_${uniqId}_${bitmapIndex} },
 `;
         });
 
@@ -106,7 +144,8 @@ typedef struct {
             behavior: 'smooth'
         });
 
-        document.querySelectorAll('button.fileDownload, button.copy').forEach(button => button.classList.remove('inactive'));
+        document.querySelectorAll('button.fileDownload, button.copy')
+                .forEach(button => button.classList.remove('disabled'));
     }
 
     async saveFile(button) {

@@ -1,5 +1,6 @@
-import showActive from './globals';
+import {clearOutput, showActive} from './globals';
 import CellClickHandler from './cellClickHandler';
+import CellHoverHandler from './cellHoverHandler';
 
 export default class RowButtons {
 
@@ -18,6 +19,7 @@ export default class RowButtons {
     }
 
     clickHandler(rowButton) {
+        clearOutput();
         const where = document.querySelector('input[name="where"]:checked').value;
         const workRow = where === 'top' ? 0 : params.maxRows - 1;
         params.maxDisplayPages = document.querySelector('.displaySize').value;
@@ -25,17 +27,16 @@ export default class RowButtons {
         showActive(rowButton);
         if (rowButton.classList.contains('addRow')) {
             // addRow
-            if (Math.ceil((params.maxRows + 1) / 8) > params.maxDisplayPages) {
-                alert('max display size exceeded');
-            } else {
-                bitmaps.forEach((bitmap, bitmapIndex) => {
-                    const body = bitmap.cells[workRow][0].parentElement.parentElement;
-                    const bodyRow = body.insertRow(where === 'top' ? 0 : -1);
-                    const newRow = new Array(bitmap.width).fill(0).map((ignore, index) => {
-                        const newCell = bodyRow.insertCell();
+            if (Math.ceil((params.maxRows + 1) / 8) <= params.maxDisplayPages) {
+                bitmaps.forEach(bitmap => {
+                    const tableBody = bitmap.cells[workRow][0].parentElement.parentElement;
+                    const tableRow = tableBody.insertRow(where === 'top' ? 0 : -1);
+                    const newRow = new Array(bitmap.width).fill(0).map(() => {
+                        const newCell = tableRow.insertCell();
                         newCell.classList.add('value');
-                        newCell.bitmapIndex = bitmapIndex;
-                        newCell.addEventListener('click', ev => new CellClickHandler(ev));
+                        newCell.bitmap = bitmap;
+                        newCell.addEventListener('mousedown', ev => new CellClickHandler(ev));
+                        newCell.addEventListener('mouseover', ev => new CellHoverHandler(ev));
                         return newCell;
                     });
                     if (where === 'top') {
@@ -56,25 +57,26 @@ export default class RowButtons {
             }
         } else {
             //removeRow
-            bitmaps.forEach((bitmap, bitmapIndex) => {
-                const bodyRow = bitmap.cells[workRow][0].parentElement;
-                //const body = bodyRow.parentElement;
-                bodyRow.remove();
-                if (where === 'top') {
-                    bitmap.cells.shift();
-                } else {
-                    bitmap.cells.pop();
-                }
-                // renumber cells
-                bitmap.cells.forEach((cells, rowIndex) => {
-                    cells.forEach((cell, cellIndex) => {
-                        cell.row = rowIndex;
-                        cell.col = cellIndex;
+            if (params.maxRows > 1) {
+                bitmaps.forEach(bitmap => {
+                    const tableRow = bitmap.cells[workRow][0].parentElement;
+                    tableRow.remove();
+                    if (where === 'top') {
+                        bitmap.cells.shift();
+                    } else {
+                        bitmap.cells.pop();
+                    }
+                    // renumber cells
+                    bitmap.cells.forEach((cells, rowIndex) => {
+                        cells.forEach((cell, cellIndex) => {
+                            cell.row = rowIndex;
+                            cell.col = cellIndex;
+                        });
                     });
                 });
-            });
-            params.maxRows--;
-            params.maxFontPages = Math.ceil((params.maxRows - 1) / 8);
+                params.maxRows--;
+                params.maxFontPages = Math.ceil((params.maxRows - 1) / 8);
+            }
         }
 
         document.querySelector('.maxRows').innerText = params.maxRows;

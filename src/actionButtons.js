@@ -1,33 +1,35 @@
-import showActive from './globals';
+import {clearOutput, showActive} from './globals';
 import Area from './area';
-import FillAndWipeHandler from './fillAndWipeHandler';
-import PlusHandler from './plusHandler';
-import MinusHandler from './minusHandler';
+import AreaButtonHandler from './areaButtonHandler';
+import AreaCopyButtonHandler from './areaCopyButtonHandler';
+import FillAndWipeButtonHandler from './fillAndWipeButtonHandler';
+import PlusButtonHandler from './plusButtonHandler';
+import MinusButtonHandler from './minusButtonHandler';
 import Canvas from './canvas';
 
 export default class ActionButtons {
 
-    // buttons are drawn in order of list
-    buttonClassNames = [['area', 'fill', 'wipe'], ['plus', 'minus'], ['new']];
-    buttonTitles = [
-        [
-            'select an area',
-            'fill the area',
-            'wipe the area'
-        ],
-        [
-            'add a column to the right',
-            'remove a column from the right'
-        ],
-        [
-            'new bitmap'
-        ]
+    buttonProperties = [
+        {
+            'area': 'select an area',
+            'areaCopy': 'copy cells on move'
+        }, {
+            'fill': 'fill cells',
+            'wipe': 'wipe cells'
+        }, {
+            'plus': 'add a column @right',
+            'minus': 'remove a column @right'
+        }, {
+            'delete': 'delete bitmap',
+            'clone': 'clone bitmap',
+            'new': 'new bitmap'
+        }
     ];
 
     constructor() {
     }
 
-    initBitmapDiv(bitmapDiv, table, bitmapIndex, width) {
+    initBitmapDiv(bitmapDiv, table, bitmap, width) {
 
         const topDiv = document.createElement('div');
         topDiv.classList.add('topDiv');
@@ -35,137 +37,149 @@ export default class ActionButtons {
         const bottomDiv = document.createElement('div');
         bottomDiv.classList.add('bottomDiv');
         bitmapDiv.append(bottomDiv);
+        const bottomButtonDiv = document.createElement('div');
+        bottomButtonDiv.classList.add('bottomButtonDiv');
+        bottomDiv.append(bottomButtonDiv);
 
         const buttonGroupDiv = document.createElement('div');
         buttonGroupDiv.classList.add('buttonGroup');
         const nameInput = document.createElement('input');
         nameInput.classList.add('name');
         nameInput.type = 'text';
-        nameInput.value = bitmaps[bitmapIndex].name;
+        nameInput.value = bitmap.name;
         nameInput.addEventListener('change', ev => {
-            bitmaps[bitmapIndex].name = ev.target.value;
+            bitmap.name = ev.target.value;
         });
         buttonGroupDiv.append(nameInput);
         topDiv.append(buttonGroupDiv);
 
-        let area = null;
-
-        this.buttonClassNames.forEach((buttonGroup, buttonGroupIndex) => {
+        bitmap.buttons = {};
+        this.buttonProperties.forEach((buttonGroup, buttonGroupIndex) => {
             const buttonGroupDiv = document.createElement('div');
             buttonGroupDiv.classList.add('buttonGroup');
 
-            buttonGroup.forEach((buttonClass, buttonIndex) => {
+            for (const [buttonClass, buttonTitle] of Object.entries(buttonGroup)) {
                 const button = document.createElement('button');
-                button.buttonGroupIndex = buttonGroupIndex;
-                button.buttonIndex = buttonIndex;
-                button.bitmapIndex = bitmapIndex;
-                button.title = this.buttonTitles[buttonGroupIndex][buttonIndex];
+                button.bitmap = bitmap;
+                button.title = buttonTitle;
                 button.classList.add(buttonClass);
-                if (buttonGroupIndex === 0 && buttonIndex > 0) {
-                    button.classList.add('inactive');
-                }
+                button.bitmapDiv = bitmapDiv;
                 buttonGroupDiv.append(button);
                 button.addEventListener('click', ev => this.clickHandler(ev.target));
-                if (buttonGroupIndex === 0 && buttonIndex === 0) {
-                    area = button.area = new Area();
-                } else if (buttonGroupIndex === 1 && buttonIndex === 1) {
+                bitmap.buttons[buttonClass] = button;
+                if (buttonClass === 'area') {
+                    button.bitmap.area.instance = new Area();
+                } else if (buttonClass === 'areaCopy') {
+                    button.classList.add('disabled');
+                } else if (buttonClass === 'minus') {
                     const span = document.createElement('span');
                     span.classList.add('cols');
                     span.innerText = width;
                     buttonGroupDiv.append(span);
+                } else if (buttonClass === 'delete') {
+                    button.active = false;
+                    if (bitmaps.length < 2) {
+                        button.classList.add('disabled');
+                    }
                 }
-            });
+            }
 
-            if (buttonGroupIndex === 0) {
-                bottomDiv.append(buttonGroupDiv);
+            if (buttonGroupIndex <= 1) {
+                bottomButtonDiv.append(buttonGroupDiv);
             } else {
                 topDiv.append(buttonGroupDiv);
             }
         });
 
         bottomDiv.append(table);
-
-        return area;
     }
 
     clickHandler(actionButton) {
-        if (actionButton.buttonGroupIndex === 0) {
-            if (actionButton.buttonIndex === 0) {
-                // area
-                this.areaClickHandler(actionButton);
-            } else if (actionButton.buttonIndex === 1 || actionButton.buttonIndex === 2) {
-                // fill & wipe
-                showActive(actionButton);
-                new FillAndWipeHandler(actionButton, actionButton.buttonIndex === 1);
-            }
-        } else if (actionButton.buttonGroupIndex === 1) {
-            showActive(actionButton);
-            if (actionButton.buttonIndex === 0) {
-                // plus
-                new PlusHandler(actionButton);
-            } else if (actionButton.buttonIndex === 1) {
-                // minus
-                new MinusHandler(actionButton);
-            }
-        } else if (actionButton.buttonGroupIndex === 2) {
-            // new bitmap
-            this.newBitmapClickHandler(actionButton);
+        const buttonClass = actionButton.classList[0];
+        switch (buttonClass) {
+            case 'area':
+                new AreaButtonHandler(actionButton);
+                break;
+            case 'areaCopy':
+                new AreaCopyButtonHandler(actionButton);
+                break;
+            case 'fill':
+                new FillAndWipeButtonHandler(actionButton, true);
+                break;
+            case 'wipe':
+                new FillAndWipeButtonHandler(actionButton, false);
+                break;
+            case 'plus':
+                new PlusButtonHandler(actionButton);
+                break;
+            case 'minus':
+                new MinusButtonHandler(actionButton);
+                break;
+            case 'delete':
+                this.deleteBitmapClickHandler(actionButton);
+                break;
+            case 'clone':
+                this.cloneBitmapClickHandler(actionButton);
+                break;
+            case 'new':
+                this.newBitmapClickHandler(actionButton);
+                break;
         }
     }
 
+    cloneBitmapClickHandler(actionButton) {
+        const newBitmap = this.newBitmapClickHandler(actionButton);
+        newBitmap.area.instance = new Area();
+        // clone cells
+        const bitmap = actionButton.bitmap;
+        const newBitmapCells = newBitmap.cells;
+        bitmap.cells.forEach((cells, rowIndex) => {
+            cells.forEach((cell, cellIndex) => {
+                newBitmapCells[rowIndex][cellIndex].state = cell.state;
+                newBitmapCells[rowIndex][cellIndex].classList = cell.classList;
+            });
+        });
+        newBitmap.area.instance.clearCells(newBitmapCells);
+    }
+
+    deleteBitmapClickHandler(actionButton) {
+        actionButton.classList.add('active');
+        if (confirm('Are you sure you want to delete this bitmap?')) {
+            clearOutput();
+            // delete current bitmap
+            bitmaps.splice(bitmaps.indexOf(actionButton.bitmap), 1);
+
+            const bitmapDiv = actionButton.parentElement.parentElement.parentElement;
+            bitmapDiv.remove();
+            if (bitmaps.length === 1) {
+                document.querySelector('button.delete').classList.add('disabled');
+            }
+        }
+        setTimeout(() => {
+            actionButton.classList.remove('active');
+        }, 200);
+    }
+
     newBitmapClickHandler(actionButton) {
+        clearOutput();
         showActive(actionButton);
+        if (bitmaps.length === 1) {
+            actionButton.parentNode.firstElementChild.classList.remove('disabled');
+        }
         // add new bitmap
-        const width = bitmaps[actionButton.bitmapIndex].width;
-        const newBitmap = bitmapInstance.new('?', width, new Array(params.maxRows * width / 8).fill(0x00));
-        if (actionButton.bitmapIndex < bitmaps.length) {
-            bitmaps.splice(actionButton.bitmapIndex + 1, 0, newBitmap);
+        const width = actionButton.bitmap.width;
+        const newBitmap = bitmapInstance.newBitmap('?', width, new Array(params.maxRows * width / 8).fill(0x00));
+        let bitmapIndex = bitmaps.indexOf(actionButton.bitmap);
+        if (bitmapIndex < bitmaps.length) {
+            bitmaps.splice(bitmapIndex + 1, 0, newBitmap);
         } else {
             bitmaps.push(newBitmap);
         }
         // insert new bitmap into canvas
         const bitmapDiv = actionButton.parentElement.parentElement.parentElement;
-        const newBitmapDiv = new Canvas().newBitmap(newBitmap, actionButton.bitmapIndex + 1, this);
+        const newBitmapDiv = new Canvas().newBitmapDiv(newBitmap, this);
         bitmapDiv.after(newBitmapDiv);
-        // renumber
-        const bitmapButtonGroups = document.querySelectorAll('.bitmap .buttonGroup');
-        const groupsPerBitmap = bitmapButtonGroups.length / bitmaps.length;
 
-        for (let bitmapIndex = actionButton.bitmapIndex + 1; bitmapIndex < bitmaps.length; bitmapIndex++) {
-            const bitmap = bitmaps[bitmapIndex];
-            // renumber cells
-            bitmap.cells.forEach(cells => cells.forEach(cell => cell.bitmapIndex = bitmapIndex));
-            // renumber actionButtons
-            for (let i = 0; i < groupsPerBitmap; i++) {
-                bitmapButtonGroups[bitmapIndex * groupsPerBitmap + i].querySelectorAll('button').forEach(button => {
-                    button.bitmapIndex = bitmapIndex;
-                });
-            }
-        }
-    }
-
-    areaClickHandler(actionButton) {
-        const allAreaButtons = document.querySelectorAll('button.area');
-        allAreaButtons.forEach(areaButton => {
-            if (actionButton === areaButton) {
-                areaButton.classList.toggle('active');
-            } else {
-                areaButton.classList.remove('active');
-                const modButtons = areaButton.parentNode.querySelectorAll('.fill, .wipe');
-                modButtons.forEach(modButton => modButton.classList.add('inactive'));
-                areaButton.area.clear();
-            }
-        });
-
-        area.isComplete = false;
-        const modButtons = actionButton.parentNode.querySelectorAll('.fill, .wipe');
-        if (actionButton.classList.contains('active')) {
-            area.bitmapIndex = actionButton.bitmapIndex;
-            modButtons.forEach(modButton => modButton.classList.remove('inactive'));
-        } else {
-            actionButton.area.clear();
-            area.bitmapIndex = -1;
-            modButtons.forEach(modButton => modButton.classList.add('inactive'));
-        }
+        return newBitmap;
     }
 }

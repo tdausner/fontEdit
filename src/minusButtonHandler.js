@@ -1,7 +1,11 @@
-export default class minusHandler {
+import {clearOutput, showActive} from './globals';
+
+export default class MinusButtonHandler {
 
     constructor(actionButton) {
-        const bitmap = bitmaps[actionButton.bitmapIndex];
+        showActive(actionButton);
+        clearOutput();
+        const bitmap = actionButton.bitmap;
         const width = bitmap.width;
         if (width > 1) {
             const cells = bitmap.cells;

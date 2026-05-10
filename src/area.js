@@ -1,9 +1,12 @@
+import {clearOutput} from './globals';
+
 export default class Area {
 
     constructor() {
     }
 
     process(cellClicked) {
+        const area = cellClicked.bitmap.area;
         if (area.pos.x0 === -1) {
             cellClicked.classList.add('area-first');
             area.pos.x0 = cellClicked.col;
@@ -22,7 +25,7 @@ export default class Area {
             if (!area.isComplete) {
                 area.isComplete = true;
                 document.addEventListener('keydown', this.moveArea);
-                const bitmap = bitmaps[cellClicked.bitmapIndex];
+                const bitmap = cellClicked.bitmap;
                 const cell = bitmap.cells[area.pos.y0][area.pos.x0];
                 cell.classList.remove('area-first');
                 for (let row = area.pos.top; row <= area.pos.bottom; row++) {
@@ -33,7 +36,7 @@ export default class Area {
             } else {
                 area.isComplete = false;
                 document.removeEventListener('keydown', this.moveArea);
-                this.clear();
+                this.clearCells(cellClicked.bitmap.cells);
                 area.pos.x0 = cellClicked.col;
                 area.pos.y0 = cellClicked.row;
                 cellClicked.classList.add('area-first');
@@ -43,94 +46,102 @@ export default class Area {
     }
 
     moveArea(ev) {
-        ev.preventDefault();
-        if (ev.keyCode === 37 && area.pos.left > 0) {
-            // pos.left
-            for (let row = area.pos.top; row <= area.pos.bottom; row++) {
-                for (let col = area.pos.left; col <= area.pos.right; col++) {
-                    const bitmap = bitmaps[area.bitmapIndex];
-                    bitmap.cells[row][col - 1].state = bitmap.cells[row][col].state;
-                    bitmap.cells[row][col - 1].classList = bitmap.cells[row][col].classList;
-                    if (col === area.pos.right) {
-                        bitmap.cells[row][col].classList.remove('area');
-                        if (!params.areaCopy) {
-                            bitmap.cells[row][col].state = false;
-                            bitmap.cells[row][col].classList.remove('on');
+
+        let mustClearOutput = false;
+        bitmaps.forEach(bitmap => {
+            if (bitmap.areaActive) {
+                const area = bitmap.area;
+
+                if (ev.keyCode === 37 && area.pos.left > 0) {
+                    // left
+                    for (let row = area.pos.top; row <= area.pos.bottom; row++) {
+                        for (let col = area.pos.left; col <= area.pos.right; col++) {
+                            bitmap.cells[row][col - 1].state = bitmap.cells[row][col].state;
+                            bitmap.cells[row][col - 1].classList = bitmap.cells[row][col].classList;
+                            if (col === area.pos.right) {
+                                bitmap.cells[row][col].classList.remove('area');
+                                if (!bitmap.area.areaCopy) {
+                                    bitmap.cells[row][col].state = false;
+                                    bitmap.cells[row][col].classList.remove('on');
+                                }
+                            }
                         }
                     }
-                }
-            }
-            area.pos.left--;
-            area.pos.right--;
-        } else if (ev.keyCode === 38 && area.pos.top > 0) {
-            // up
-            for (let col = area.pos.left; col <= area.pos.right; col++) {
-                for (let row = area.pos.top; row <= area.pos.bottom; row++) {
-                    const bitmap = bitmaps[area.bitmapIndex];
-                    bitmap.cells[row - 1][col].state = bitmap.cells[row][col].state;
-                    bitmap.cells[row - 1][col].classList = bitmap.cells[row][col].classList;
-                    if (row === area.pos.bottom) {
-                        bitmap.cells[row][col].classList.remove('area');
-                        if (!params.areaCopy) {
-                            bitmap.cells[row][col].state = false;
-                            bitmap.cells[row][col].classList.remove('on');
+                    area.pos.left--;
+                    area.pos.right--;
+                    mustClearOutput = true;
+                } else if (ev.keyCode === 38 && area.pos.top > 0) {
+                    // up
+                    for (let col = area.pos.left; col <= area.pos.right; col++) {
+                        for (let row = area.pos.top; row <= area.pos.bottom; row++) {
+                            bitmap.cells[row - 1][col].state = bitmap.cells[row][col].state;
+                            bitmap.cells[row - 1][col].classList = bitmap.cells[row][col].classList;
+                            if (row === area.pos.bottom) {
+                                bitmap.cells[row][col].classList.remove('area');
+                                if (!bitmap.area.areaCopy) {
+                                    bitmap.cells[row][col].state = false;
+                                    bitmap.cells[row][col].classList.remove('on');
+                                }
+                            }
                         }
                     }
-                }
-            }
-            area.pos.top--;
-            area.pos.bottom--;
-        } else if (ev.keyCode === 39 && area.pos.right < bitmaps[area.bitmapIndex].width - 1) {
-            // right
-            for (let row = area.pos.top; row <= area.pos.bottom; row++) {
-                for (let col = area.pos.right; col >= area.pos.left; col--) {
-                    const bitmap = bitmaps[area.bitmapIndex];
-                    bitmap.cells[row][col + 1].state = bitmap.cells[row][col].state;
-                    bitmap.cells[row][col + 1].classList = bitmap.cells[row][col].classList;
-                    if (col === area.pos.left) {
-                        bitmap.cells[row][col].classList.remove('area');
-                        if (!params.areaCopy) {
-                            bitmap.cells[row][col].state = false;
-                            bitmap.cells[row][col].classList.remove('on');
+                    area.pos.top--;
+                    area.pos.bottom--;
+                    mustClearOutput = true;
+                } else if (ev.keyCode === 39 && area.pos.right < bitmap.width - 1) {
+                    // right
+                    for (let row = area.pos.top; row <= area.pos.bottom; row++) {
+                        for (let col = area.pos.right; col >= area.pos.left; col--) {
+                            bitmap.cells[row][col + 1].state = bitmap.cells[row][col].state;
+                            bitmap.cells[row][col + 1].classList = bitmap.cells[row][col].classList;
+                            if (col === area.pos.left) {
+                                bitmap.cells[row][col].classList.remove('area');
+                                if (!bitmap.area.areaCopy) {
+                                    bitmap.cells[row][col].state = false;
+                                    bitmap.cells[row][col].classList.remove('on');
+                                }
+                            }
                         }
                     }
-                }
-            }
-            area.pos.right++;
-            area.pos.left++;
-        } else if (ev.keyCode === 40 && area.pos.bottom < params.maxRows - 1) {
-            // down
-            for (let col = area.pos.left; col <= area.pos.right; col++) {
-                for (let row = area.pos.bottom; row >= area.pos.top; row--) {
-                    const bitmap = bitmaps[area.bitmapIndex];
-                    bitmap.cells[row + 1][col].state = bitmap.cells[row][col].state;
-                    bitmap.cells[row + 1][col].classList = bitmap.cells[row][col].classList;
-                    if (row === area.pos.top) {
-                        bitmap.cells[row][col].classList.remove('area');
-                        if (!params.areaCopy) {
-                            bitmap.cells[row][col].state = false;
-                            bitmap.cells[row][col].classList.remove('on');
+                    area.pos.right++;
+                    area.pos.left++;
+                    mustClearOutput = true;
+                } else if (ev.keyCode === 40 && area.pos.bottom < params.maxRows - 1) {
+                    // down
+                    for (let col = area.pos.left; col <= area.pos.right; col++) {
+                        for (let row = area.pos.bottom; row >= area.pos.top; row--) {
+                            bitmap.cells[row + 1][col].state = bitmap.cells[row][col].state;
+                            bitmap.cells[row + 1][col].classList = bitmap.cells[row][col].classList;
+                            if (row === area.pos.top) {
+                                bitmap.cells[row][col].classList.remove('area');
+                                if (!bitmap.area.areaCopy) {
+                                    bitmap.cells[row][col].state = false;
+                                    bitmap.cells[row][col].classList.remove('on');
+                                }
+                            }
                         }
                     }
+                    area.pos.top++;
+                    area.pos.bottom++;
+                    mustClearOutput = true;
                 }
             }
-            area.pos.top++;
-            area.pos.bottom++;
+        });
+        if (mustClearOutput) {
+            clearOutput();
         }
     }
 
-    clear() {
-        if (area.bitmapIndex >= 0) {
-            const cells = bitmaps[area.bitmapIndex].cells;
-            cells.forEach((columns, row) => {
-                columns.forEach(cell => {
-                    cell.classList.remove('area', 'area-first');
-                });
+    clearCells(cells) {
+        cells.forEach((columns) => {
+            columns.forEach(cell => {
+                cell.classList.remove('area', 'area-first');
             });
-            for (const [key, value] of Object.entries(area.pos)) {
-                area.pos[key] = -1;
-            }
-            document.removeEventListener('keydown', this.moveArea);
+        });
+        const area = cells[0][0].bitmap.area;
+        for (const [key] of Object.entries(area.pos)) {
+            area.pos[key] = -1;
         }
+        document.removeEventListener('keydown', this.moveArea);
     }
 }

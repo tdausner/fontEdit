@@ -1,9 +1,13 @@
+import {clearOutput, showActive} from './globals';
 import CellClickHandler from './cellClickHandler';
+import CellHoverHandler from './cellHoverHandler';
 
-export default class PlusHandler {
+export default class PlusButtonHandler {
 
     constructor(actionButton) {
-        const bitmap = bitmaps[actionButton.bitmapIndex];
+        showActive(actionButton);
+        clearOutput();
+        const bitmap = actionButton.bitmap;
         const cells = bitmap.cells;
         const width = bitmap.width;
         for (let row = 0; row <= params.maxRows - 1; row++) {
@@ -11,11 +15,12 @@ export default class PlusHandler {
             const bodyRow = lastCell.parentElement;
             const cell = bodyRow.insertCell(-1);
             cell.classList.add('value');
-            cell.bitmapIndex = actionButton.bitmapIndex;
+            cell.bitmap = bitmap;
             cell.row = row;
             cell.col = width;
             cell.state = false;
-            cell.addEventListener('click', ev => new CellClickHandler(ev));
+            cell.addEventListener('mousedown', ev => new CellClickHandler(ev));
+            cell.addEventListener('mouseover', ev => new CellHoverHandler(ev));
             cells[row].push(cell);
         }
         bitmap.width++;

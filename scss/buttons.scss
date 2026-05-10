@@ -88,30 +88,69 @@ input.fileUpload {
       box-shadow: inset 0 0 5px #c1c1c1;
     }
 
-    &.inactive {
+    &.disabled {
       opacity: 0.5;
       pointer-events: none;
     }
 
     &.area {
-      color: #57c2fa;
+      color: #18c8fd;
 
       &::after {
         content: "\f0b2";
       }
 
       &.active {
-        -webkit-box-shadow: inset 0 0 5px #c1c1c1;
-        -moz-box-shadow: inset 0 0 5px #c1c1c1;
-        box-shadow: inset 0 0 5px #c1c1c1;
-        color: #00aaff;
-        background-color: #bae2fa;
+        -webkit-box-shadow: inset 0 0 5px #69e0fd;
+        -moz-box-shadow: inset 0 0 5px #69e0fd;
+        box-shadow: inset 0 0 5px #69e0fd;
       }
+    }
+
+    &.areaCopy {
+      cursor: pointer;
+
+      &::after {
+        content: "\f247";
+        color: #60eda8;
+      }
+
+      &.active {
+        -webkit-box-shadow: inset 0 0 5px #60eda8;
+        -moz-box-shadow: inset 0 0 5px #60eda8;
+        box-shadow: inset 0 0 5px #60eda8;
+      }
+    }
+
+    label.areaCopy {
+      margin-left: -7px;
+    }
+
+    &.clone::after {
+      content: "\f101";
+      color: #888888;
     }
 
     &.copy::after {
       content: "\f0c5";
       color: #888888;
+    }
+
+    &.delete {
+      &::after {
+        content: "\58";
+        color: #888888;
+
+      }
+
+      &.active {
+        border-color: #d94100;
+        box-shadow: inset 0 0 5px #d94100;
+
+        &::after {
+          color: #d94100;
+        }
+      }
     }
 
     &.fill {
@@ -138,7 +177,7 @@ input.fileUpload {
     }
 
     &.new::after {
-      content: "\f2f5";
+      content: "\f105";
       color: #666666;
     }
 
@@ -161,6 +200,10 @@ input.fileUpload {
     }
   }
 
+  span.cols, span.maxRows {
+    cursor: default;
+  }
+
   span.cols, span.maxRows, input.name {
     @extend %border;
 
@@ -173,7 +216,13 @@ input.fileUpload {
   }
 
   input.name {
+    cursor: text;
     font-size: 1em;
     text-align: center;
+
+    &:focus {
+      color: #000;
+      font-weight: bold;
+    }
   }
 }
