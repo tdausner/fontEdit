@@ -47,13 +47,16 @@ export default class ActionButtons {
         nameInput.classList.add('name');
         nameInput.type = 'text';
         nameInput.value = bitmap.name;
+        nameInput.setAttribute('maxlength', '1');
         nameInput.addEventListener('change', ev => {
-            bitmap.name = ev.target.value;
+            bitmap.name = ev.target.value === '' ? '?' : ev.target.value;
+            ev.target.value = bitmap.name;
         });
         buttonGroupDiv.append(nameInput);
         topDiv.append(buttonGroupDiv);
 
         bitmap.buttons = {};
+        bitmap.bitmapDiv = bitmapDiv
         this.buttonProperties.forEach((buttonGroup, buttonGroupIndex) => {
             const buttonGroupDiv = document.createElement('div');
             buttonGroupDiv.classList.add('buttonGroup');
@@ -63,7 +66,6 @@ export default class ActionButtons {
                 button.bitmap = bitmap;
                 button.title = buttonTitle;
                 button.classList.add(buttonClass);
-                button.bitmapDiv = bitmapDiv;
                 buttonGroupDiv.append(button);
                 button.addEventListener('click', ev => this.clickHandler(ev.target));
                 bitmap.buttons[buttonClass] = button;

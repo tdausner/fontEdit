@@ -16,11 +16,11 @@ Object.assign(window, {
      *              state: bool,
      *          },
      *      ],
+     *      bitmapDiv: <htmlElement>,
      *      buttons: [
      *          <buttonClass>: {
      *              bitmap: Object,
      *              title: string
-     *              bitmapDiv: <htmlElement>,
      *              active: bool,
      *          },
      *      ],

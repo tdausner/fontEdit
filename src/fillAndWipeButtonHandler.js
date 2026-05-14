@@ -18,13 +18,13 @@ export default class FillAndWipeButtonHandler {
             bitmap.fillActive = fill;
             bitmap.wipeActive = !fill;
             // set the bitmapDiv class to the active actionButton's class (for CSS styling)
-            actionButton.bitmapDiv.classList.add(actionButton.classList[0]);
-            actionButton.bitmapDiv.classList.remove(otherButton.classList[0]);
+            actionButton.bitmap.bitmapDiv.classList.add(actionButton.classList[0]);
+            actionButton.bitmap.bitmapDiv.classList.remove(otherButton.classList[0]);
         } else {
             bitmap.fillActive = false;
             bitmap.wipeActive = false;
             // clear the bitmapDiv class list from the active actionButton's class (for CSS styling)
-            actionButton.bitmapDiv.classList.remove(actionButton.classList[0], otherButton.classList[0]);
+            actionButton.bitmap.bitmapDiv.classList.remove(actionButton.classList[0], otherButton.classList[0]);
         }
         if (bitmap.areaActive) {
             new AreaButtonHandler(bitmap.buttons['area']);

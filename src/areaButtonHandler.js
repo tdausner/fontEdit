@@ -9,6 +9,7 @@ export default class AreaButtonHandler {
             areaCopyButton.classList.remove('disabled');
             bitmap.buttons['fill'].classList.remove('active');
             bitmap.buttons['wipe'].classList.remove('active');
+            bitmap.bitmapDiv.classList.remove('fill', 'wipe');
             bitmap.areaActive = true;
             bitmap.areaCopy = false;
             bitmap.fillActive = false;
