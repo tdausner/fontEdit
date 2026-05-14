@@ -29,6 +29,7 @@ export default class FillAndWipeButtonHandler {
         if (bitmap.areaActive) {
             new AreaButtonHandler(bitmap.buttons['area']);
             bitmap.areaActive = false;
+            bitmap.areaCopy = false;
         }
     }
 }

@@ -53,14 +53,18 @@ const FontData bitmaps_fontEditIcon[] PROGMEM = {
             fileHeader = matches[0];
         }
 
+        // 3, bitmap_69f59472_1 },
         let names = [];
         let match;
-        let regex = /const FontData bitmaps_[A-Za-z0-9_]+\[] PROGMEM = {\n([\s\S]*?)\n};/g;
+        let regex = /const FontData [A-Za-z0-9_]+\[] PROGMEM = {\n([\s\S]*?)\n};/g;
         if ((match = regex.exec(text)) !== null) {
-            const values = match[1].split(/(\s*{\s*'|'[^/]+\/\s*|,\s*bitmap_\d+\s*},\s*)/);
-            for (let i = 2; i < values.length; i += 6) {
-                let name = values[i];
-                if (name === "\\") {
+            const lines = match[1].split('\n');
+            lines.forEach((line, index) => {
+                const values = line.split(/(\s*{\s*'|'[^/]+\/\s*|,\s*bitmap_[A-Za-z0-9_]+\s*},\s*)/);
+                let name = values[2];
+                if (name === '' || typeof name !== 'string') {
+                    name = '?';
+                } else if (name === "\\") {
                     name = "'";
                 } else if (name === "\\\\") {
                     name = "\\";
@@ -68,10 +72,10 @@ const FontData bitmaps_fontEditIcon[] PROGMEM = {
                 if (name !== '') {
                     names.push(name);
                 }
-                if (i === 2 && values[4] !== undefined) {
+                if (index === 2 && values[4] !== undefined) {
                     params.maxFontPages = parseInt(values[4]);
                 }
-            }
+            })
         }
 
         this.inputBitmaps = [];
