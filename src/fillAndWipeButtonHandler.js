@@ -1,5 +1,3 @@
-import AreaButtonHandler from './areaButtonHandler';
-
 export default class FillAndWipeButtonHandler {
 
     constructor(actionButton, fill) {
@@ -25,11 +23,6 @@ export default class FillAndWipeButtonHandler {
             bitmap.wipeActive = false;
             // clear the bitmapDiv class list from the active actionButton's class (for CSS styling)
             actionButton.bitmap.bitmapDiv.classList.remove(actionButton.classList[0], otherButton.classList[0]);
-        }
-        if (bitmap.areaActive) {
-            new AreaButtonHandler(bitmap.buttons['area']);
-            bitmap.areaActive = false;
-            bitmap.areaCopy = false;
         }
     }
 }

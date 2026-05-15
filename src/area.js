@@ -24,7 +24,6 @@ export default class Area {
             // the area is complete, both corners are set
             if (!area.isComplete) {
                 area.isComplete = true;
-                document.addEventListener('keydown', this.moveArea);
                 const bitmap = cellClicked.bitmap;
                 const cell = bitmap.cells[area.pos.y0][area.pos.x0];
                 cell.classList.remove('area-first');
@@ -35,7 +34,6 @@ export default class Area {
                 }
             } else {
                 area.isComplete = false;
-                document.removeEventListener('keydown', this.moveArea);
                 this.clearCells(cellClicked.bitmap.cells);
                 area.pos.x0 = cellClicked.col;
                 area.pos.y0 = cellClicked.row;
@@ -47,10 +45,15 @@ export default class Area {
 
     moveArea(ev) {
 
+        if (ev.keyCode >= 37 && ev.keyCode <= 40) {
+            ev.preventDefault();
+        }
         let mustClearOutput = false;
+
         bitmaps.forEach(bitmap => {
-            if (bitmap.areaActive) {
-                const area = bitmap.area;
+            const area = bitmap.area;
+console.log(area);
+            if (area.isComplete) {
 
                 if (ev.keyCode === 37 && area.pos.left > 0) {
                     // left
@@ -142,6 +145,5 @@ export default class Area {
         for (const [key] of Object.entries(area.pos)) {
             area.pos[key] = -1;
         }
-        document.removeEventListener('keydown', this.moveArea);
     }
 }

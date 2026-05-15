@@ -11,7 +11,6 @@ export default class AreaButtonHandler {
             bitmap.buttons['wipe'].classList.remove('active');
             bitmap.bitmapDiv.classList.remove('fill', 'wipe');
             bitmap.areaActive = true;
-            bitmap.areaCopy = false;
             bitmap.fillActive = false;
             bitmap.wipeActive = false;
             area.pos.x0 = -1;
@@ -22,12 +21,13 @@ export default class AreaButtonHandler {
             area.pos.top = -1;
             area.pos.right = -1;
             area.pos.bottom = -1;
-            area.isComplete = false;
         } else {
             areaCopyButton.classList.remove('active');
             areaCopyButton.classList.add('disabled');
             area.instance.clearCells(bitmap.cells);
             bitmap.areaActive = false;
         }
+        bitmap.areaCopy = false;
+        bitmap.area.isComplete = false;
     }
 }

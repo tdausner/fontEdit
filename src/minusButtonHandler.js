@@ -16,7 +16,7 @@ export default class MinusButtonHandler {
                 cells[row].pop();
             }
             bitmap.width--;
-            actionButton.parentElement.querySelector('span').innerText = bitmap.width;
+            actionButton.parentElement.lastElementChild.innerText = bitmap.width;
         }
      }
 }

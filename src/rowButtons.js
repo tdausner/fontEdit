@@ -1,6 +1,7 @@
 import {clearOutput, showActive} from './globals';
 import CellClickHandler from './cellClickHandler';
 import CellHoverHandler from './cellHoverHandler';
+import AreaButtonHandler from './areaButtonHandler';
 
 export default class RowButtons {
 
@@ -25,6 +26,16 @@ export default class RowButtons {
         params.maxDisplayPages = document.querySelector('.displaySize').value;
 
         showActive(rowButton);
+
+        bitmaps.forEach(bitmap => {
+            if (bitmap.areaActive) {
+                new AreaButtonHandler(bitmap.buttons['area']);
+                bitmap.areaActive = false;
+                bitmap.areaCopy = false;
+                bitmap.area.isComplete = false;
+            }
+        });
+
         if (rowButton.classList.contains('addRow')) {
             // addRow
             if (Math.ceil((params.maxRows + 1) / 8) <= params.maxDisplayPages) {

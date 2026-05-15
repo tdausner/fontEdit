@@ -3,8 +3,11 @@ import {showActive} from './globals';
 import Bitmap from './bitmap';
 import RowButtons from './rowButtons';
 import FillAndWipeButtonHandler from './fillAndWipeButtonHandler';
+import Area from './area';
 import AreaButtonHandler from './areaButtonHandler';
 import AreaCopyButtonHandler from './areaCopyButtonHandler';
+import PlusButtonHandler from './plusButtonHandler';
+import MinusButtonHandler from './minusButtonHandler';
 
 export class App {
 
@@ -24,6 +27,8 @@ export class App {
         });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
+        document.addEventListener('keydown', new Area().moveArea);
+
     }
 
     keyHandler(ev) {
@@ -50,6 +55,10 @@ export class App {
                 new AreaButtonHandler(activeBitmap.buttons['area']);
             } else if (activeBitmap.areaActive && (keyPressed === 'c' || keyPressed === 'C')) {
                 new AreaCopyButtonHandler(activeBitmap.buttons['areaCopy']);
+            } else if (keyPressed === '+') {
+                new PlusButtonHandler(activeBitmap.buttons['plus']);
+            } else if (keyPressed === '-') {
+                new MinusButtonHandler(activeBitmap.buttons['minus']);
             }
         }
     }

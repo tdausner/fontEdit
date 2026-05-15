@@ -98,6 +98,9 @@ export default class ActionButtons {
 
     clickHandler(actionButton) {
         const buttonClass = actionButton.classList[0];
+        if (buttonClass !== 'area' && buttonClass !== 'areaCopy' && actionButton.bitmap.areaActive) {
+            new AreaButtonHandler(actionButton.bitmap.buttons['area']);
+        }
         switch (buttonClass) {
             case 'area':
                 new AreaButtonHandler(actionButton);
