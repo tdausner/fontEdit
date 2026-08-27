@@ -26,7 +26,7 @@ The actual version is for AVR microcontrollers
 ```bash
 $ cd to/your/font/editor/directory
 $ yarn install
-$ npm start server
+$ npm run serve
 ```
 
 ## Font format example

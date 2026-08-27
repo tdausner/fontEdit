@@ -218,11 +218,11 @@ input.fileUpload {
   input.name {
     cursor: text;
     font-size: 1em;
+    font-weight: bold;
     text-align: center;
 
     &:focus {
       color: #000;
-      font-weight: bold;
     }
   }
 }
