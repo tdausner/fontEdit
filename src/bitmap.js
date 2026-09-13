@@ -72,7 +72,7 @@ const FontData bitmaps_fontEditIcon[] PROGMEM = {
                 if (name !== '') {
                     names.push(name);
                 }
-                if (index === 2 && values[4] !== undefined) {
+                if (values[4] !== undefined) {
                     params.maxFontPages = parseInt(values[4]);
                 }
             })
@@ -84,7 +84,7 @@ const FontData bitmaps_fontEditIcon[] PROGMEM = {
         while ((match = regex.exec(text)) !== null) {
             const hexString = match[1].replace(/,\s*?$/, '');
             const hexData = hexString.split(',').map(val => val.trim().toString(16).padStart(2, '0'));
-            this.inputBitmaps.push([names[idx++], hexData.length / params.maxFontPages, hexData]);
+            this.inputBitmaps.push([names[idx++], Math.ceil(hexData.length / params.maxFontPages), hexData]);
         }
         params.maxRows = params.maxFontPages * 8;
         params.maxDisplayPages = params.maxRows / 8;
